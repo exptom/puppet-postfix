@@ -86,6 +86,7 @@ class postfix::server (
   $relocated_maps = false,
   $extra_main_parameters = {},
   # master.cf
+  $manage_master = true,
   $smtp_content_filter = [],
   $smtps_content_filter = [],
   $submission = false,
@@ -182,12 +183,15 @@ class postfix::server (
     hasstatus => true,
     restart   => $service_restart,
   }
-
-  file { "${config_directory}/master.cf":
-    content => template("postfix/master.cf${filesuffix}.erb"),
-    notify  => Service['postfix'],
-    require => Package[$package_name],
+  
+  if $manage_master {
+    file { "${config_directory}/master.cf":
+      content => template("postfix/master.cf${filesuffix}.erb"),
+      notify  => Service['postfix'],
+      require => Package[$package_name],
+    }
   }
+  
   file { "${config_directory}/main.cf":
     content => template("postfix/main.cf${filesuffix}.erb"),
     notify  => Service['postfix'],
